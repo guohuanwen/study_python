@@ -1,11 +1,14 @@
 #coding:utf-8
-import urllib.request
+import urllib
 from collections import deque
-from html.parser import HTMLParser  
+from HTMLParser import HTMLParser
+import re
 
-_queue = deque(["http://a.codekk.com/"])
+_queue = deque(["http://www.baidu.com/s?wd=诛仙百度云"])
 _opened_queue = deque([""])
 
+def my_log(var,text):
+    print(text)
 
 #队首压入
 def push_queue_top(url):
@@ -36,10 +39,19 @@ def pull_url_unread():
             
 
 #打开url 返回一个html
-def openurl(url):   
-    data = urllib.request.urlopen(url).read()
-    html = data.decode("UTF-8")
-    return html
+def openurl(url):
+    my_log(1,"open url")
+    response = urllib.urlopen(url)
+    HttpMessage = response.info()
+    ContentType = HttpMessage.gettype()
+    if "text/html" != ContentType:
+        my_log(1,"is not text")
+        return ""
+    else:
+        my_log(1,"read html")
+        data = response.read()
+        html = data.decode("UTF-8")
+        return html
 
 #解析网页中的html  返回url list
 class MyHTMLParser(HTMLParser):
@@ -56,29 +68,42 @@ class MyHTMLParser(HTMLParser):
             else:   
                 for (variable, value) in attrs:   
                     if variable == "href":   
-                        self.links.append(value)  
-    
+                        self.links.append(value)
 
     
 
 if __name__=="__main__":
     p = 1;
-    hp = MyHTMLParser()   
-    while p<30:
+    hp = MyHTMLParser()
+    pattern = re.compile(r'^(https?|ftp|file)://.+$')
+    yun_pattern = re.compile(r'https://pan.baidu.com.+$')
+    
+    while p<10000:
+        p = p+1
         try :
             url = pull_url_unread();
-            print(url)
-            print('\n')
+            
+            url_match = pattern.match(url)
+            if url_match:
+                my_log(0,url)
+                print('\n')
+            else:
+                my_log(0,"is not url")
+                continue
+            
             html = openurl(url)
-            print (html)
-            print('\n')
+            if "" == html:
+                my_log(0,"url is null")
+                continue
             
             hp.feed(html)   
             for x in hp.links:
+                yun_match = yun_pattern.match(x)
+                if yun_match:
+                    my_log(0,"find url "+x)
                 push_queue_top(x)
             
             _opened_queue.append(url)
-            p = p+1
         except:
             continue
 
