@@ -30,7 +30,7 @@ def image_tanslate(imagepath,filepath):
                 ttxt.write("\n")
                 print(aa)
                 aa = ""
-                
+
     
     '''
     for w in range(0,width,1):
@@ -59,6 +59,9 @@ def string_replace(number):
     
 
 if __name__ == "__main__":
-    imagepath="C:/Users/Administrator/Desktop/11.jpg"
-    filepath = "C:/Users/Administrator/Desktop/zifu.txt"
+    print sys.argv[0] ##脚本名
+    print sys.argv[1] ## 第一个参数
+    
+    imagepath=sys.argv[1]
+    filepath=sys.argv[2]
     image_tanslate(imagepath,filepath)
